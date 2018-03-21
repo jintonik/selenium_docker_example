@@ -1,0 +1,44 @@
+group 'test.docker.selenium'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    e2eTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDirs = files('src/test/java')
+        }
+        resources {
+            srcDirs = files('src/test/resources')
+        }
+    }
+}
+
+configurations {
+    e2eTestCompile.extendsFrom testCompile
+    e2eTestRuntime.extendsFrom testRuntime
+}
+
+dependencies {
+    compile "junit:junit:${junitVer}"
+    compile "com.codeborne:selenide:${selenideVer}"
+    compile "org.seleniumhq.selenium:selenium-java:${seleniumVer}"
+    compile "org.testcontainers:selenium:${testContVer}"
+    compile "org.slf4j:slf4j-log4j12:${slf4jVer}"
+}
+
+task e2eTest(type: Test){
+    testClassesDir = sourceSets.e2eTest.output.classesDir
+    classpath = sourceSets.e2eTest.runtimeClasspath
+
+    systemProperty("target.url", findProperty("target.url")) ?: ""
+}
+
